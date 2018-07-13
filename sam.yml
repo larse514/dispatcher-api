@@ -136,13 +136,13 @@ Resources:
         ProxyApiRoot:
           Type: Api
           Properties:
-            RestApiId: !Ref ApiGateway
+            RestApiId: !Ref APIGateway
             Path: /
             Method: ANY
         ProxyApiGreedy:
           Type: Api
           Properties:
-            RestApiId: !Ref ApiGateway
+            RestApiId: !Ref APIGateway
             Path: /{proxy+}
             Method: ANY
   DispatcherAPIVersion:
