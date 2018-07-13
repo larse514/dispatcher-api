@@ -9,7 +9,8 @@ import (
 
 func TestGetAllRoutesHTTPStatusOK(t *testing.T) {
 	r := getRouter()
-	r.GET("/routes", GetAllRoutes)
+	handler := HTTPRouteHandler{}
+	r.GET("/routes", handler.GetAllRoutes)
 
 	req, _ := http.NewRequest("GET", "/routes", nil)
 
@@ -28,9 +29,10 @@ func TestGetAllRoutesHTTPStatusOK(t *testing.T) {
 
 func TestGetAllRoutes2AreReturned(t *testing.T) {
 	r := getRouter()
-	r.GET("/sources", GetAllRoutes)
+	handler := HTTPRouteHandler{}
+	r.GET("/routes", handler.GetAllRoutes)
 
-	req, _ := http.NewRequest("GET", "/sources", nil)
+	req, _ := http.NewRequest("GET", "/routes", nil)
 
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		body, err := ioutil.ReadAll(w.Body)
@@ -41,6 +43,9 @@ func TestGetAllRoutes2AreReturned(t *testing.T) {
 		if err != nil {
 			t.Log("Error parsing body")
 			t.Fail()
+		}
+		if actual != expected {
+			t.Log("expected ", expected, " got ", actual)
 		}
 		return sourcesOk
 	})

@@ -18,8 +18,12 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// stdout and stderr are sent to AWS CloudWatch Logs
 	log.Printf("main handler")
 	r := gin.Default()
-	r.GET("/sources", handlers.GetAllSources)
-	r.GET("/sources/:name/routes", handlers.GetAllRoutes)
+	sourceHandler := handlers.HTTPSourceHandler{}
+	routeHandler := handlers.HTTPRouteHandler{}
+
+	r.GET("/sources", sourceHandler.GetAllSources)
+	r.GET("/sources/:name/routes", routeHandler.GetAllRoutes)
+	r.POST("/sources/:name/routes", routeHandler.GetAllRoutes)
 
 	r.GET("/ping", handlers.Ping)
 	ginLambda = ginadapter.New(r)
