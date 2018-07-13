@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Dispatcher API 
+Parameters:
+
+Environment:
+  Type: String
+  Description: Name environment to deploy stack to 
+
 Resources:
   SampleFunction:
     Type: AWS::Serverless::Function
@@ -23,4 +29,4 @@ Outputs:
     Description: URL for application
     Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets'
     Export:
-      Name: Dispather
+      Name: !Sub ${Environment}_Dispather

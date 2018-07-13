@@ -14,7 +14,7 @@ build:
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(CORE_BINARY_NAME) main.go
 package:
 	zip main.zip $(CORE_BINARY_NAME)
-	aws cloudformation package --template-file $(SAM_FILE) --output-template-file $(SAM_OUTPUT) --s3-bucket $(DEPLOYMENT_BUCKET)
+	aws cloudformation package --template-file $(SAM_FILE) --output-template-file $(SAM_OUTPUT) --s3-bucket $(DEPLOYMENT_BUCKET) 
 test: 
 	$(GOTEST) -v ./...
 clean: 
@@ -22,7 +22,7 @@ clean:
 	rm -f $(BINARY_NAME).zip
 	rm -f $(SAM_OUTPUT)
 deploy:
-	aws cloudformation deploy --template-file $(SAM_OUTPUT) --stack-name $(STACK_NAME) --capabilities CAPABILITY_IAM
+	aws cloudformation deploy --template-file $(SAM_OUTPUT) --stack-name $(STACK_NAME) --capabilities CAPABILITY_IAM --parameter-overrides Environment=$(ENV)
 
 dependencies: 
 	@go get github.com/aws/aws-lambda-go/lambda
