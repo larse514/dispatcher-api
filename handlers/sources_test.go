@@ -1,38 +1,103 @@
 package handlers
 
 import (
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
 type mockGoodRepository struct {
 }
+type mockBadRepository struct {
+}
 
 func (mockGoodRepository mockGoodRepository) CreateRoute(source Source) error {
 	return nil
 }
-
+func (mockGoodRepository mockGoodRepository) GetRoutes(source Source) (Source, error) {
+	return Source{}, nil
+}
+func (mockBadRepository mockBadRepository) CreateRoute(source Source) error {
+	return errors.New("THIS IS AN ERROR")
+}
+func (mockBadRepository mockBadRepository) GetRoutes(source Source) (Source, error) {
+	return Source{}, errors.New("THIS IS AN ERROR")
+}
 func TestCreateRouteStatusCreated(t *testing.T) {
-	// r := getRouter()
-	// r.POST("/sources/name/routes", CreateRoute)
+	r := getRouter()
 
-	// req, _ := http.NewRequest("POST", "/sources/name/routes", nil)
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
 
-	// testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+	r.POST("/sources/name/routes", handler.CreateRoute)
 
-	// 	_, err := ioutil.ReadAll(w.Body)
-	// 	if err != nil {
-	// 		t.Log("Error parsing body")
-	// 		t.Fail()
-	// 	}
-	// 	if w.Code != http.StatusCreated {
-	// 		t.Log("incorrect status, expected ", http.StatusCreated, " got ", w.Code)
-	// 		t.Fail()
-	// 	}
-	// 	return w.Code == http.StatusCreated
-	// })
+	req, _ := http.NewRequest("POST", "/sources/name/routes",
+		strings.NewReader(`{"route": {"url": "String"},"withSourceCreation": "boolean"}`))
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+
+		_, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		if w.Code != http.StatusCreated {
+			t.Log("incorrect status, expected ", http.StatusCreated, " got ", w.Code)
+			t.Fail()
+		}
+		return w.Code == http.StatusCreated
+	})
+
+}
+func TestCreateRouteInvalidRequestUnprocessableEntity(t *testing.T) {
+	r := getRouter()
+
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+
+	r.POST("/sources/name/routes", handler.CreateRoute)
+
+	req, _ := http.NewRequest("POST", "/sources/name/routes", nil)
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+
+		_, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		if w.Code != http.StatusUnprocessableEntity {
+			t.Log("incorrect status, expected ", http.StatusUnprocessableEntity, " got ", w.Code)
+			t.Fail()
+		}
+		return w.Code == http.StatusUnprocessableEntity
+	})
+
+}
+func TestCreateRouteInvalidRequestDatabaseFailsReturnsServiceUnavailable(t *testing.T) {
+	r := getRouter()
+
+	handler := HTTPSourceHandler{Repository: mockBadRepository{}}
+
+	r.POST("/sources/name/routes", handler.CreateRoute)
+
+	req, _ := http.NewRequest("POST", "/sources/name/routes",
+		strings.NewReader(`{"route": {"url": "String"},"withSourceCreation": "boolean"}`))
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+
+		_, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		if w.Code != http.StatusServiceUnavailable {
+			t.Log("incorrect status, expected ", http.StatusServiceUnavailable, " got ", w.Code)
+			t.Fail()
+		}
+		return w.Code == http.StatusServiceUnavailable
+	})
 
 }
 func TestGetAllHTTPStatusOK(t *testing.T) {

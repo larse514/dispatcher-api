@@ -9,7 +9,7 @@ import (
 // SourceHandler is an interface to handle Source HTTP requests
 type SourceHandler interface {
 	GetAllSources(c *gin.Context)
-	CreateRoute(c *gin.Context, repository SourceRepository)
+	CreateRoute(c *gin.Context)
 }
 
 //Source is the struct representation of a source object
@@ -25,14 +25,15 @@ type SourceDTO struct {
 	WithSourceCreation bool    `json:"withSourceCreation"`
 }
 
+// HTTPSourceHandler struct implementation of SourceHandler for HTTP requests
+type HTTPSourceHandler struct {
+	Repository SourceRepository
+}
+
 //SourceRepository is an interface used by the sources.go handler to interact with storage
 type SourceRepository interface {
 	CreateRoute(source Source) error
-}
-
-// HTTPSourceHandler struct implementation of SourceHandler for HTTP requests
-type HTTPSourceHandler struct {
-	repository SourceRepository
+	GetRoutes(source Source) (Source, error)
 }
 
 //GetAllSources is a method to return all source object
@@ -49,7 +50,7 @@ func (handler HTTPSourceHandler) GetAllSources(c *gin.Context) {
 }
 
 //CreateRoute is a method to create a Route for a given Source
-func (handler HTTPSourceHandler) CreateRoute(c *gin.Context, repository SourceRepository) {
+func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 	sourceDTO := SourceDTO{}
 
 	err := c.ShouldBind(&sourceDTO)
@@ -63,7 +64,7 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context, repository SourceRe
 
 	sourceName := c.Params.ByName("name")
 	source := Source{Name: sourceName, Routes: sourceDTO.Routes}
-	err = repository.CreateRoute(source)
+	err = handler.Repository.CreateRoute(source)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -71,6 +72,7 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context, repository SourceRe
 		})
 		return
 	}
+
 	c.JSON(http.StatusCreated, gin.H{
 		"message": "created",
 	})
