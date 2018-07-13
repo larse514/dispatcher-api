@@ -22,7 +22,8 @@ jobs:
     - run: 
         name: Integration tests
         command: |
-          make integ ${STACK_NAME}
+          cd integration && ./setup.sh $(STACK_NAME)
+          cd integration && newman run Dispatcher_API.postman_collection.json
     - save_cache:
         key: v1-pkg-cache
         paths:
