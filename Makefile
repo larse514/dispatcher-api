@@ -33,6 +33,6 @@ dependencies:
 
 integ: 
 	cd integration && ./setup.sh $(STACK_NAME)
-	cd integration && ./run.sh
+	cd integration && newman run Dispatcher_API.postman_collection.json
 
 
