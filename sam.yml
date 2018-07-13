@@ -10,6 +10,7 @@ Resources:
   SampleFunction:
     Type: AWS::Serverless::Function
     Properties:
+      StageName: !Ref Environment
       Handler: main
       CodeUri: main.zip
       Runtime: go1.x
@@ -26,6 +27,6 @@ Resources:
 Outputs:
   SampleGinApi:
     Description: URL for application
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/${Environment}'
     Export:
       Name: !Sub ${Environment}-Dispather
