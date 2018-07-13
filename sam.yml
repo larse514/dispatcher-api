@@ -28,4 +28,4 @@ Outputs:
     Description: URL for application
     Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/pets'
     Export:
-      Name: !Sub ${Environment}_Dispather
+      Name: !Sub ${Environment}-Dispather
