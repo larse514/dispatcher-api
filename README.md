@@ -1,4 +1,5 @@
 # Dispatch API
+[![CircleCI](https://circleci.com/gh/larse514/dispatcher-api.svg?style=svg)](https://circleci.com/gh/larse514/dispatcher-api) [![Go Report Card](https://goreportcard.com/badge/github.com/larse514/dispatcher-api)](https://goreportcard.com/report/github.com/larse514/dispatcher-api)
 API responsible for maintaining Source to Route information
 
 API's include:
