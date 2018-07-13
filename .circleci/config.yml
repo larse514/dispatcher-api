@@ -13,7 +13,7 @@ jobs:
         keys:
           - v1-pkg-cache
     - run: chmod +x deploy.sh
-    - run: ./deploy.sh
+    - run: ./deploy.sh ${STACK_NAME} ${DEPLOYMENT_BUCKET} 
     - save_cache:
         key: v1-pkg-cache
         paths:
