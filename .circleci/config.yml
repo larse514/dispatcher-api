@@ -12,6 +12,11 @@ jobs:
     - restore_cache:
         keys:
           - v1-pkg-cache
+    - run: 
+        name: Configure AWS environment
+        command: |
+          aws configure set default.region us-east-1
+          aws configure set default.output json
     - run: chmod +x deploy.sh
     - run: ./deploy.sh ${STACK_NAME} ${DEPLOYMENT_BUCKET} 
     - save_cache:
