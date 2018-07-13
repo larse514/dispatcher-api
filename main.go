@@ -19,7 +19,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	log.Printf("main handler")
 	r := gin.Default()
 	r.GET("/sources", handlers.GetAllSources)
-	r.GET("/sources/{sid}/routes", handlers.GetAllRoutes)
+	r.GET("/sources/:name/routes", handlers.GetAllRoutes)
 
 	r.GET("/ping", handlers.Ping)
 	ginLambda = ginadapter.New(r)
