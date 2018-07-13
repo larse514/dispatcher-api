@@ -57,4 +57,4 @@ $ aws cloudformation deploy \
     --parameter-overrides Environment=$(ENV)
 
 ```
-
+Note that these can be found in the Makefile under the package and deploy tasks
