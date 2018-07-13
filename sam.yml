@@ -2,10 +2,9 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Dispatcher API 
 Parameters:
-
-Environment:
-  Type: String
-  Description: Name environment to deploy stack to 
+  Environment:
+    Type: String
+    Description: Name environment to deploy stack to 
 
 Resources:
   SampleFunction:
