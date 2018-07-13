@@ -1,0 +1,171 @@
+{
+	"id": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+	"name": "Dispatcher_API",
+	"description": "",
+	"order": [
+		"367152dc-442f-2d24-cc4d-1cb8baf6eb9d",
+		"e5381247-58d6-e174-4d3e-c9ae332f4dc4",
+		"dda4f031-1004-d0fe-9966-339953c9c625"
+	],
+	"folders": [],
+	"folders_order": [],
+	"timestamp": 1531495190802,
+	"owner": "837563",
+	"public": false,
+	"events": [],
+	"variables": [],
+	"auth": null,
+	"requests": [
+		{
+			"id": "367152dc-442f-2d24-cc4d-1cb8baf6eb9d",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/sources/sid/routes",
+			"queryParams": [],
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "19fe6dd5-be91-46da-b8cf-84c7f8e0bd99",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Routes array not empty\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.routes.length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"auth": null,
+			"time": 1531498236367,
+			"name": "GET sources/{sourcename}/routes",
+			"description": "",
+			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+			"responses": [],
+			"preRequestScript": null,
+			"tests": "pm.test(\"Routes array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.routes.length).to.be.above(0);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{}"
+		},
+		{
+			"id": "dda4f031-1004-d0fe-9966-339953c9c625",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/ping",
+			"folder": null,
+			"queryParams": [],
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "df535e43-279d-49e9-8f2f-d94f7c8bcb05",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Message is pong\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.eql(\"pong\");",
+							"});"
+						]
+					}
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"auth": null,
+			"time": 1531498245989,
+			"name": "GET Ping Pong",
+			"description": "",
+			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+			"responses": [],
+			"preRequestScript": null,
+			"tests": "pm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});\n\npm.test(\"Message is pong\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"pong\");\n});",
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{}"
+		},
+		{
+			"id": "e5381247-58d6-e174-4d3e-c9ae332f4dc4",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/sources",
+			"folder": null,
+			"queryParams": [],
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "54a0a9f3-3806-418e-b255-588cb23ab799",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"Sources array not empty\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.sources.length).to.be.above(0);",
+							"});",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						]
+					}
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "GET",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"auth": null,
+			"time": 1531498240085,
+			"name": "GET /sources",
+			"description": "",
+			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+			"responses": [],
+			"preRequestScript": null,
+			"tests": "pm.test(\"Sources array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.sources.length).to.be.above(0);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{}"
+		}
+	]
+}

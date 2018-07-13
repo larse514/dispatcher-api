@@ -19,6 +19,10 @@ jobs:
           aws configure set default.output json
     - run: chmod +x deploy.sh
     - run: ./deploy.sh ${STACK_NAME} ${DEPLOYMENT_BUCKET} 
+    - run: 
+        name: Integration tests
+        command: |
+          make integ ${STACK_NAME}
     - save_cache:
         key: v1-pkg-cache
         paths:

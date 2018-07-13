@@ -8,6 +8,7 @@ CORE_BINARY_NAME=main
 BINARY_NAME=main
 SAM_OUTPUT=sam_output.yml
 SAM_FILE=sam.yml
+
 all: clean dependencies test build package
 
 build: 
@@ -29,5 +30,9 @@ dependencies:
 	@go get github.com/aws/aws-lambda-go/events
 	@go get github.com/gin-gonic/gin
 	@go get github.com/awslabs/aws-lambda-go-api-proxy/gin
+
+integ: 
+	cd integration && ./setup.sh $(STACK_NAME)
+	cd integration && ./run.sh
 
 

@@ -145,6 +145,7 @@ Resources:
             RestApiId: !Ref APIGateway
             Path: /{proxy+}
             Method: ANY
+            
   DispatcherAPIVersion:
     Type: AWS::Lambda::Version
     Properties:
