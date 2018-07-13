@@ -7,22 +7,72 @@ Parameters:
     Description: Name environment to deploy stack to 
 
 Resources:
-  SampleFunction:
-    Type: AWS::Serverless::Function
+  #API Gateway definition
+  APIGateway:
+    Type: AWS::Serverless::Api
     Properties:
       StageName: !Ref Environment
+      DefinitionBody:
+        swagger: 2.0
+        info:
+          title: !Ref AWS::StackName
+        paths:
+          "/v1/dispatcher":
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: POST
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DispatcherAPI.Arn}/invocations
+              responses: {}
+            options:
+              consumes:
+              - application/json
+              produces:
+              - application/json
+              responses:
+                "200":
+                  description: 200 response
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: string
+                    Access-Control-Allow-Methods:
+                      type: string
+                    Access-Control-Allow-Headers:
+                      type: string
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: 200
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Methods: "'DELETE,GET,HEAD,OPTIONS,PATCH,POST,PUT'"
+                      method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                passthroughBehavior: when_no_match
+                requestTemplates:
+                  application/json: "{\"statusCode\": 200}"
+                type: mock
+  DispatcherAPI:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub DispatcherAPI_${Environment}
       Handler: main
       CodeUri: main.zip
       Runtime: go1.x
       MemorySize: 128
       Policies: AWSLambdaBasicExecutionRole
       Timeout: 3
+      Environment:
+        Variables:
+          ENVIRONMENT: !Ref Stage
       Events:
-        GetResource:
+        PostResource:
           Type: Api
           Properties:
-            Path: /{proxy+}
-            Method: any
+            RestApiId: !Ref APIGateway
+            Path: /v1/dispatcher
+            Method: post
 
 Outputs:
   SampleGinApi:

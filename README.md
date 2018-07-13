@@ -1,4 +1,4 @@
-*Dispatch API*
+# Dispatch API
 API responsible for maintaining Source to Route information
 
 API's include:
@@ -24,3 +24,37 @@ Retrieve all sources that are maintained by dispatcher
 
 ### 3. GET /sources/{sid}/routes
 Retrieve all routes for a given source
+
+
+## Deployment
+### Application code
+The Dispatcher API is built using [aws lambda go](https://github.com/aws/aws-lambda-go) for integration with [aws lambda](https://aws.amazon.com/lambda/) and the [golang gin library](https://gin-gonic.github.io/gin/) 
+### Build Code
+``` shell
+$ make
+```
+This will execute the clean, dependencies, test, build, and package tasks
+
+### Deploy
+The Dispatcher API uses the [Serverless Application Model](https://github.com/awslabs/serverless-application-model) for deployment.  The API is defined in the sam.yml file.  This includes 2 steps:
+
+1. Package assets
+
+``` shell
+$ aws cloudformation package \
+    --template-file $(SAM_FILE) \
+    --output-template-file $(SAM_OUTPUT) \
+    --s3-bucket $(DEPLOYMENT_BUCKET) 
+
+```
+
+2. Deploy assets
+``` shell
+$ aws cloudformation deploy \
+    --template-file $(SAM_OUTPUT) \
+    --stack-name $(STACK_NAME) \
+    --capabilities CAPABILITY_IAM \
+    --parameter-overrides Environment=$(ENV)
+
+```
+
