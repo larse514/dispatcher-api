@@ -13,9 +13,9 @@ import (
 )
 
 type dynamoSource struct {
-	id    string
-	name  string
-	route string
+	ID    string `json:"id"`
+	Name  string `json:"name"`
+	Route string `json:"route"`
 }
 
 // SourceRepositoryInMemory struct containing in memory list
@@ -44,7 +44,7 @@ func (repo SourceDynamoDBRepository) GetAllSources() ([]handlers.Source, error) 
 func (repo SourceDynamoDBRepository) CreateRoute(source handlers.Source) error {
 	for _, route := range source.Routes {
 		u1 := uuid.Must(uuid.NewV4())
-		attribute, err := dynamodbattribute.MarshalMap(dynamoSource{id: u1.String(), name: source.Name, route: route.URL})
+		attribute, err := dynamodbattribute.MarshalMap(dynamoSource{ID: u1.String(), Name: source.Name, Route: route.URL})
 
 		if err != nil {
 			fmt.Println("Got error marshalling map:")
