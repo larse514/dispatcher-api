@@ -34,7 +34,7 @@ func TestPingResponseIsPong(t *testing.T) {
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 
 		body, err := ioutil.ReadAll(w.Body)
-		expected := `{"message":"pongwithachance"}`
+		expected := `{"message":"pong"}`
 		actual := string(body)
 		pageOK := err == nil && actual == expected
 
