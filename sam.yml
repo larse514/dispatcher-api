@@ -137,7 +137,7 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
-          TableName: !Sub ${TableBaseName}_${Stage}
+          TableName: !Sub ${TableBaseName}_${Environment}
           Environment: !Ref Environment
           Region: !Sub ${AWS::Region}
       Events:
