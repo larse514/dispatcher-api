@@ -59,7 +59,7 @@ func (repo SourceDynamoDBRepository) GetSource(source handlers.Source) (handlers
 		fmt.Println((err.Error()))
 		return handlers.Source{}, err
 	}
-
+	fmt.Println("Query returned ", result)
 	for _, i := range result.Items {
 		route := handlers.Route{}
 		err = dynamodbattribute.UnmarshalMap(i, &route)
