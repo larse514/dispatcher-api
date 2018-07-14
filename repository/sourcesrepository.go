@@ -9,7 +9,14 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/larse514/dispatcher-api/handlers"
+	uuid "github.com/satori/go.uuid"
 )
+
+type dynamoSource struct {
+	id    string
+	name  string
+	route string
+}
 
 // SourceRepositoryInMemory struct containing in memory list
 type SourceRepositoryInMemory struct {
@@ -35,28 +42,33 @@ func (repo SourceDynamoDBRepository) GetAllSources() ([]handlers.Source, error) 
 
 // CreateRoute method to create a route
 func (repo SourceDynamoDBRepository) CreateRoute(source handlers.Source) error {
-	attribute, err := dynamodbattribute.MarshalMap(source)
-	if err != nil {
-		fmt.Println("Got error marshalling map:")
-		fmt.Println(err.Error())
-		return err
+	for _, route := range source.Routes {
+		u1 := uuid.Must(uuid.NewV4())
+		attribute, err := dynamodbattribute.MarshalMap(dynamoSource{id: u1.String(), name: source.Name, route: route.URL})
+
+		if err != nil {
+			fmt.Println("Got error marshalling map:")
+			fmt.Println(err.Error())
+		}
+
+		// Create item in table
+		input := &dynamodb.PutItemInput{
+			Item:      attribute,
+			TableName: aws.String(repo.TableName),
+		}
+
+		//put item
+		_, err = repo.Svc.PutItem(input)
+
+		if err != nil {
+			fmt.Println("Got error calling PutItem:")
+			fmt.Println(err.Error())
+			return err
+		}
+
+		fmt.Println("Successfully added Source")
 	}
 
-	// Create item in table Movies
-	input := &dynamodb.PutItemInput{
-		Item:      attribute,
-		TableName: aws.String(repo.TableName),
-	}
-	//put item
-	_, err = repo.Svc.PutItem(input)
-
-	if err != nil {
-		fmt.Println("Got error calling PutItem:")
-		fmt.Println(err.Error())
-		return err
-	}
-
-	fmt.Println("Successfully added Source")
 	return nil
 }
 
@@ -64,7 +76,6 @@ func (repo SourceDynamoDBRepository) CreateRoute(source handlers.Source) error {
 func (repo SourceRepositoryInMemory) CreateRoute(source handlers.Source) error {
 	repo.Lock.Lock()
 	defer repo.Lock.Unlock()
-	// u1 := uuid.Must(uuid.NewV4())
 
 	repo.Sources[source.Name] = append(repo.Sources[source.Name], source.Routes...)
 	return nil
