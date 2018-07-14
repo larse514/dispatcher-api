@@ -63,14 +63,14 @@ func (repo SourceDynamoDBRepository) GetSource(source handlers.Source) (handlers
 	fmt.Println("Query returned ", result)
 
 	for _, i := range result.Items {
-		route := handlers.Route{}
+		route := dynamoSource{}
 		err = dynamodbattribute.UnmarshalMap(i, &route)
 		if err != nil {
 			fmt.Println("Got error unmarshalling:")
 			fmt.Println(err.Error())
 			return handlers.Source{}, err
 		}
-		source.Routes = append(source.Routes, route)
+		source.Routes = append(source.Routes, handlers.Route{URL: route.Route})
 	}
 	return source, nil
 }
