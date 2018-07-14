@@ -224,12 +224,6 @@ Resources:
         -
           AttributeName: "id"
           AttributeType: "S"
-        -
-          AttributeName: "name"
-          AttributeType: "S"
-        -
-          AttributeName: "route"
-          AttributeType: "S"
       KeySchema:
         -
           AttributeName: "id"
