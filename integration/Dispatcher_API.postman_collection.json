@@ -3,6 +3,7 @@
 	"name": "Dispatcher_API",
 	"description": "",
 	"order": [
+		"6dec38d4-58bb-eb42-450b-3e807aa8eae9",
 		"367152dc-442f-2d24-cc4d-1cb8baf6eb9d",
 		"e5381247-58d6-e174-4d3e-c9ae332f4dc4",
 		"dda4f031-1004-d0fe-9966-339953c9c625"
@@ -27,18 +28,18 @@
 					"enabled": true
 				}
 			],
-			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/sources/sid/routes",
+			"url": "{{URL}}/sources/{{SOURCE1}}/routes",
 			"queryParams": [],
 			"events": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "19fe6dd5-be91-46da-b8cf-84c7f8e0bd99",
+						"id": "91e99747-1504-4cf6-9fee-0aec5361a901",
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Routes array not empty\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.routes.length).to.be.above(0);",
+							"    pm.expect(jsonData.routes.length).to.be.eq(1);",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
@@ -54,16 +55,76 @@
 			"data": [],
 			"dataMode": "raw",
 			"auth": null,
-			"time": 1531498236367,
+			"time": 1531525319224,
 			"name": "GET sources/{sourcename}/routes",
 			"description": "",
 			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
 			"responses": [],
 			"preRequestScript": null,
-			"tests": "pm.test(\"Routes array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.routes.length).to.be.above(0);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
+			"tests": "pm.test(\"Routes array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.routes.length).to.be.eq(1);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
 			"currentHelper": null,
 			"helperAttributes": null,
 			"rawModeData": "{}"
+		},
+		{
+			"id": "6dec38d4-58bb-eb42-450b-3e807aa8eae9",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{URL}}/sources/{{SOURCE1}}/routes",
+			"queryParams": [],
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "62b7c51a-15a0-480c-8496-44bdc7660a15",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Message is created\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.message).to.eql(\"created\");",
+							"});"
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "d293cdd5-c776-4cb6-8235-020f2092f2d4",
+						"type": "text/javascript",
+						"exec": [
+							"pm.environment.set(\"SOURCE1\", \"Some Source Name\");"
+						]
+					}
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"auth": null,
+			"time": 1531525293361,
+			"name": "GET sources/{sourcename}/routes copy",
+			"description": "",
+			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+			"responses": [],
+			"preRequestScript": "pm.environment.set(\"SOURCE1\", \"Some Source Name\");",
+			"tests": "\npm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\npm.test(\"Message is created\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"created\");\n});",
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{\n\t\"routes\": [{\n\t\t\"url\": \"https://www.google.com\"\n\t}],\n\t\"withSourceCreation\": false\n}"
 		},
 		{
 			"id": "dda4f031-1004-d0fe-9966-339953c9c625",
@@ -76,7 +137,7 @@
 					"enabled": true
 				}
 			],
-			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/ping",
+			"url": "{{URL}}/ping",
 			"folder": null,
 			"queryParams": [],
 			"events": [
@@ -127,19 +188,19 @@
 					"enabled": true
 				}
 			],
-			"url": "https://dze1hwqe83.execute-api.us-east-1.amazonaws.com/ci/sources",
+			"url": "{{URL}}/sources",
 			"folder": null,
 			"queryParams": [],
 			"events": [
 				{
 					"listen": "test",
 					"script": {
-						"id": "54a0a9f3-3806-418e-b255-588cb23ab799",
+						"id": "a89c3064-ae3f-4f11-8005-796bc47019e8",
 						"type": "text/javascript",
 						"exec": [
 							"pm.test(\"Sources array not empty\", function () {",
 							"    var jsonData = pm.response.json();",
-							"    pm.expect(jsonData.sources.length).to.be.above(0);",
+							"    pm.expect(jsonData.sources.length).to.be.eq(1);",
 							"});",
 							"",
 							"pm.test(\"Status code is 200\", function () {",
@@ -156,13 +217,13 @@
 			"dataMode": "raw",
 			"version": 2,
 			"auth": null,
-			"time": 1531498240085,
+			"time": 1531525339015,
 			"name": "GET /sources",
 			"description": "",
 			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
 			"responses": [],
 			"preRequestScript": null,
-			"tests": "pm.test(\"Sources array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.sources.length).to.be.above(0);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
+			"tests": "pm.test(\"Sources array not empty\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.sources.length).to.be.eq(1);\n});\n\npm.test(\"Status code is 200\", function () {\n    pm.response.to.have.status(200);\n});",
 			"currentHelper": null,
 			"helperAttributes": null,
 			"rawModeData": "{}"

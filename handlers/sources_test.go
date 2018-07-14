@@ -17,14 +17,21 @@ type mockBadRepository struct {
 func (mockGoodRepository mockGoodRepository) CreateRoute(source Source) error {
 	return nil
 }
-func (mockGoodRepository mockGoodRepository) GetRoutes(source Source) (Source, error) {
+func (mockGoodRepository mockGoodRepository) GetSource(source Source) (Source, error) {
 	return Source{}, nil
 }
+func (mockGoodRepository mockGoodRepository) GetAllSources() ([]Source, error) {
+	return append(make([]Source, 1), Source{Name: "MOCKNAME"}), nil
+}
+
 func (mockBadRepository mockBadRepository) CreateRoute(source Source) error {
 	return errors.New("THIS IS AN ERROR")
 }
-func (mockBadRepository mockBadRepository) GetRoutes(source Source) (Source, error) {
+func (mockBadRepository mockBadRepository) GetSource(source Source) (Source, error) {
 	return Source{}, errors.New("THIS IS AN ERROR")
+}
+func (mockBadRepository mockBadRepository) GetAllSources() ([]Source, error) {
+	return make([]Source, 0), errors.New("THIS IS AN ERROR")
 }
 func TestCreateRouteStatusCreated(t *testing.T) {
 	r := getRouter()
@@ -102,7 +109,7 @@ func TestCreateRouteInvalidRequestDatabaseFailsReturnsServiceUnavailable(t *test
 }
 func TestGetAllHTTPStatusOK(t *testing.T) {
 	r := getRouter()
-	handler := HTTPSourceHandler{}
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
 
 	r.GET("/sources", handler.GetAllSources)
 
@@ -120,17 +127,36 @@ func TestGetAllHTTPStatusOK(t *testing.T) {
 	})
 
 }
+func TestGetAllDBErrorReturnsHTTPStatusServiceUnavailable(t *testing.T) {
+	r := getRouter()
+	handler := HTTPSourceHandler{Repository: mockBadRepository{}}
 
+	r.GET("/sources", handler.GetAllSources)
+
+	req, _ := http.NewRequest("GET", "/sources", nil)
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		statusUnavailable := w.Code == http.StatusServiceUnavailable
+
+		_, err := ioutil.ReadAll(w.Body)
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		return statusUnavailable
+	})
+
+}
 func TestGetAll2SourcesAreReturned(t *testing.T) {
 	r := getRouter()
-	handler := HTTPSourceHandler{}
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
 	r.GET("/sources", handler.GetAllSources)
 
 	req, _ := http.NewRequest("GET", "/sources", nil)
 
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		body, err := ioutil.ReadAll(w.Body)
-		expected := `{"sources":[{"name":"Service1","routes":[{"url":"https://www.google.com"}]},{"name":"Service2","routes":[{"url":"https://www.google.com"}]}]}`
+		expected := `{"sources":[{"name":"","routes":null},{"name":"MOCKNAME","routes":null}]}`
 		actual := string(body)
 		sourcesOk := err == nil && actual == expected
 

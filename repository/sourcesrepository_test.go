@@ -15,7 +15,7 @@ func TestSourceRepositoryInMemory_AddOneSourceGetOneSource(t *testing.T) {
 	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
 
 	repo.CreateRoute(sources[0])
-	source, err := repo.GetRoutes(handlers.Source{Name: sources[0].Name})
+	source, err := repo.GetSource(handlers.Source{Name: sources[0].Name})
 
 	if err != nil {
 		t.Log("Error returned when none was expected ", err)
@@ -31,6 +31,73 @@ func TestSourceRepositoryInMemory_AddOneSourceGetOneSource(t *testing.T) {
 	}
 }
 
+func TestSourceRepositoryInMemory_AddOneSourceGetAllOneSource(t *testing.T) {
+	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
+	sources := make([]handlers.Source, 2)
+	routes := make([]handlers.Route, 1)
+	routes[0] = handlers.Route{URL: "https://www.google.com"}
+	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
+
+	repo.CreateRoute(sources[0])
+	sources, err := repo.GetAllSources()
+
+	if err != nil {
+		t.Log("Error returned when none was expected ", err)
+		t.Fail()
+	}
+
+	if len(sources) != 1 {
+		t.Log("sources is invalid ", sources)
+		t.Fail()
+	}
+}
+func TestSourceRepositoryInMemory_AddTwoSourceGetAllTwoSource(t *testing.T) {
+	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
+	sources := make([]handlers.Source, 2)
+	routes := make([]handlers.Route, 1)
+	routes[0] = handlers.Route{URL: "https://www.google.com"}
+	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
+	sources[1] = handlers.Source{Name: "Service2", Routes: routes}
+
+	repo.CreateRoute(sources[0])
+	repo.CreateRoute(sources[1])
+
+	sources, err := repo.GetAllSources()
+
+	if err != nil {
+		t.Log("Error returned when none was expected ", err)
+		t.Fail()
+	}
+
+	if len(sources) != 2 {
+		t.Log("sources is invalid ", sources)
+		t.Fail()
+	}
+}
+
+func TestSourceRepositoryInMemory_AddTwoSourceSameNameGetAllOneSource(t *testing.T) {
+	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
+	sources := make([]handlers.Source, 2)
+	routes := make([]handlers.Route, 1)
+	routes[0] = handlers.Route{URL: "https://www.google.com"}
+	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
+	sources[1] = handlers.Source{Name: "Service1", Routes: routes}
+
+	repo.CreateRoute(sources[0])
+	repo.CreateRoute(sources[1])
+
+	sources, err := repo.GetAllSources()
+
+	if err != nil {
+		t.Log("Error returned when none was expected ", err)
+		t.Fail()
+	}
+
+	if len(sources) != 1 {
+		t.Log("sources is invalid ", sources)
+		t.Fail()
+	}
+}
 func TestSourceRepositoryInMemory_AddTwoSourceGetTwoSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
@@ -43,7 +110,7 @@ func TestSourceRepositoryInMemory_AddTwoSourceGetTwoSource(t *testing.T) {
 	repo.CreateRoute(sources[0])
 	repo.CreateRoute(sources[1])
 
-	source, err := repo.GetRoutes(handlers.Source{Name: sources[0].Name})
+	source, err := repo.GetSource(handlers.Source{Name: sources[0].Name})
 
 	if err != nil {
 		t.Log("Error returned when none was expected ", err)
@@ -74,7 +141,7 @@ func TestSourceRepositoryInMemory_AddTwoDifferentSourceGetTwoDifferentSource(t *
 	repo.CreateRoute(sources[0])
 	repo.CreateRoute(sources[1])
 
-	source, err := repo.GetRoutes(handlers.Source{Name: sources[0].Name})
+	source, err := repo.GetSource(handlers.Source{Name: sources[0].Name})
 
 	if err != nil {
 		t.Log("Error returned when none was expected ", err)
@@ -89,7 +156,7 @@ func TestSourceRepositoryInMemory_AddTwoDifferentSourceGetTwoDifferentSource(t *
 		t.Fail()
 	}
 
-	source, err = repo.GetRoutes(handlers.Source{Name: sources[1].Name})
+	source, err = repo.GetSource(handlers.Source{Name: sources[1].Name})
 
 	if err != nil {
 		t.Log("Error returned when none was expected ", err)

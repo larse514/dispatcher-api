@@ -10,6 +10,7 @@ import (
 type SourceHandler interface {
 	GetAllSources(c *gin.Context)
 	CreateRoute(c *gin.Context)
+	GetRoutes(c *gin.Context)
 }
 
 //Source is the struct representation of a source object
@@ -33,16 +34,37 @@ type HTTPSourceHandler struct {
 //SourceRepository is an interface used by the sources.go handler to interact with storage
 type SourceRepository interface {
 	CreateRoute(source Source) error
-	GetRoutes(source Source) (Source, error)
+	GetSource(source Source) (Source, error)
+	GetAllSources() ([]Source, error)
+}
+
+//GetRoutes is a function to return a source based on the requested Source Name
+func (handler HTTPSourceHandler) GetRoutes(c *gin.Context) {
+	sourceName := c.Params.ByName("name")
+
+	source, err := handler.Repository.GetSource(Source{Name: sourceName})
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"message": "Error retrieving source",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"routes": source.Routes,
+	})
 }
 
 //GetAllSources is a method to return all source object
 func (handler HTTPSourceHandler) GetAllSources(c *gin.Context) {
-	sources := make([]Source, 2)
-	routes := make([]Route, 1)
-	routes[0] = Route{URL: "https://www.google.com"}
-	sources[0] = Source{Name: "Service1", Routes: routes}
-	sources[1] = Source{Name: "Service2", Routes: routes}
+	sources, err := handler.Repository.GetAllSources()
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"message": "Error retrieving route information",
+		})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"sources": sources,
