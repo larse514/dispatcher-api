@@ -1,13 +1,59 @@
 package repository
 
 import (
+	"errors"
 	"sync"
 	"testing"
+
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 
 	"github.com/larse514/dispatcher-api/handlers"
 )
 
-func TestSourceRepositoryInMemory_AddOneSourceGetOneSource(t *testing.T) {
+// Define a mock to return a basic success
+type mockGoodDynamoDbClient struct {
+	dynamodbiface.DynamoDBAPI
+}
+type mockBadDynamoDbClient struct {
+	dynamodbiface.DynamoDBAPI
+}
+
+func (client mockGoodDynamoDbClient) PutItem(*dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error) {
+	return &dynamodb.PutItemOutput{}, nil
+}
+func (client mockBadDynamoDbClient) PutItem(*dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error) {
+	return &dynamodb.PutItemOutput{}, errors.New("An error occured")
+}
+func TestSourceDynamoDBRepositoryAddOneSourceNoError(t *testing.T) {
+	repo := SourceDynamoDBRepository{Svc: mockGoodDynamoDbClient{}}
+	sources := make([]handlers.Source, 2)
+	routes := make([]handlers.Route, 1)
+	routes[0] = handlers.Route{URL: "https://www.google.com"}
+	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
+
+	err := repo.CreateRoute(sources[0])
+
+	if err != nil {
+		t.Log("Error returned when none was expected ", err)
+		t.Fail()
+	}
+}
+func TestSourceDynamoDBRepositoryAddOneSourceWithErrorReturnsError(t *testing.T) {
+	repo := SourceDynamoDBRepository{Svc: mockBadDynamoDbClient{}}
+	sources := make([]handlers.Source, 2)
+	routes := make([]handlers.Route, 1)
+	routes[0] = handlers.Route{URL: "https://www.google.com"}
+	sources[0] = handlers.Source{Name: "Service1", Routes: routes}
+
+	err := repo.CreateRoute(sources[0])
+
+	if err == nil {
+		t.Log("Error not returned when one expected")
+		t.Fail()
+	}
+}
+func TestSourceRepositoryInMemoryAddOneSourceGetOneSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 1)
@@ -31,7 +77,7 @@ func TestSourceRepositoryInMemory_AddOneSourceGetOneSource(t *testing.T) {
 	}
 }
 
-func TestSourceRepositoryInMemory_AddOneSourceGetAllOneSource(t *testing.T) {
+func TestSourceRepositoryInMemoryAddOneSourceGetAllOneSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 1)
@@ -51,7 +97,7 @@ func TestSourceRepositoryInMemory_AddOneSourceGetAllOneSource(t *testing.T) {
 		t.Fail()
 	}
 }
-func TestSourceRepositoryInMemory_AddTwoSourceGetAllTwoSource(t *testing.T) {
+func TestSourceRepositoryInMemoryAddTwoSourceGetAllTwoSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 1)
@@ -75,7 +121,7 @@ func TestSourceRepositoryInMemory_AddTwoSourceGetAllTwoSource(t *testing.T) {
 	}
 }
 
-func TestSourceRepositoryInMemory_AddTwoSourceSameNameGetAllOneSource(t *testing.T) {
+func TestSourceRepositoryInMemoryAddTwoSourceSameNameGetAllOneSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 1)
@@ -98,7 +144,7 @@ func TestSourceRepositoryInMemory_AddTwoSourceSameNameGetAllOneSource(t *testing
 		t.Fail()
 	}
 }
-func TestSourceRepositoryInMemory_AddTwoSourceGetTwoSource(t *testing.T) {
+func TestSourceRepositoryInMemoryAddTwoSourceGetTwoSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 2)
@@ -130,7 +176,7 @@ func TestSourceRepositoryInMemory_AddTwoSourceGetTwoSource(t *testing.T) {
 	}
 }
 
-func TestSourceRepositoryInMemory_AddTwoDifferentSourceGetTwoDifferentSource(t *testing.T) {
+func TestSourceRepositoryInMemoryAddTwoDifferentSourceGetTwoDifferentSource(t *testing.T) {
 	repo := SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sources := make([]handlers.Source, 2)
 	routes := make([]handlers.Route, 1)

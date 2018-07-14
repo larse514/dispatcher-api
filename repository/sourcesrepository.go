@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"sync"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
 	"github.com/larse514/dispatcher-api/handlers"
 )
 
@@ -13,16 +17,60 @@ type SourceRepositoryInMemory struct {
 	Lock    *sync.Mutex
 }
 
+// SourceDynamoDBRepository struct containing in dynamodb connection
+type SourceDynamoDBRepository struct {
+	Svc       dynamodbiface.DynamoDBAPI
+	TableName string
+}
+
+// GetSource method to get a slice of routes for a Source
+func (repo SourceDynamoDBRepository) GetSource(source handlers.Source) (handlers.Source, error) {
+	return handlers.Source{}, nil
+}
+
+// GetAllSources method to get a slice of Sources
+func (repo SourceDynamoDBRepository) GetAllSources() ([]handlers.Source, error) {
+	return nil, nil
+}
+
+// CreateRoute method to create a route
+func (repo SourceDynamoDBRepository) CreateRoute(source handlers.Source) error {
+	attribute, err := dynamodbattribute.MarshalMap(source)
+	if err != nil {
+		fmt.Println("Got error marshalling map:")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	// Create item in table Movies
+	input := &dynamodb.PutItemInput{
+		Item:      attribute,
+		TableName: aws.String(repo.TableName),
+	}
+	//put item
+	_, err = repo.Svc.PutItem(input)
+
+	if err != nil {
+		fmt.Println("Got error calling PutItem:")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	fmt.Println("Successfully added Source")
+	return nil
+}
+
 // CreateRoute method to create a route
 func (repo SourceRepositoryInMemory) CreateRoute(source handlers.Source) error {
 	repo.Lock.Lock()
 	defer repo.Lock.Unlock()
+	// u1 := uuid.Must(uuid.NewV4())
 
 	repo.Sources[source.Name] = append(repo.Sources[source.Name], source.Routes...)
 	return nil
 }
 
-// GetRoutes method to get a slice of routes for a Source
+// GetSource method to get a slice of routes for a Source
 func (repo SourceRepositoryInMemory) GetSource(source handlers.Source) (handlers.Source, error) {
 	repo.Lock.Lock()
 	defer repo.Lock.Unlock()

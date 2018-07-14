@@ -30,6 +30,8 @@ dependencies:
 	@go get github.com/aws/aws-lambda-go/events
 	@go get github.com/gin-gonic/gin
 	@go get github.com/awslabs/aws-lambda-go-api-proxy/gin
+	@go get github.com/satori/go.uuid
+	@go get github.com/aws/aws-sdk-go/aws
 
 integ: 
 	cd integration && ./setup.sh $(STACK_NAME)

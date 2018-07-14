@@ -36,7 +36,7 @@ func (mockBadRepository mockBadRepository) GetAllSources() ([]Source, error) {
 func TestCreateRouteStatusCreated(t *testing.T) {
 	r := getRouter()
 
-	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	handler := HTTPSourceHandler{Dynamo: mockGoodRepository{}}
 
 	r.POST("/sources/name/routes", handler.CreateRoute)
 
@@ -61,7 +61,7 @@ func TestCreateRouteStatusCreated(t *testing.T) {
 func TestCreateRouteInvalidRequestUnprocessableEntity(t *testing.T) {
 	r := getRouter()
 
-	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	handler := HTTPSourceHandler{Dynamo: mockGoodRepository{}}
 
 	r.POST("/sources/name/routes", handler.CreateRoute)
 
@@ -85,7 +85,7 @@ func TestCreateRouteInvalidRequestUnprocessableEntity(t *testing.T) {
 func TestCreateRouteInvalidRequestDatabaseFailsReturnsServiceUnavailable(t *testing.T) {
 	r := getRouter()
 
-	handler := HTTPSourceHandler{Repository: mockBadRepository{}}
+	handler := HTTPSourceHandler{Dynamo: mockBadRepository{}}
 
 	r.POST("/sources/name/routes", handler.CreateRoute)
 

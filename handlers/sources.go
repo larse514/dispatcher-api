@@ -35,6 +35,7 @@ type SourceDTO struct {
 // HTTPSourceHandler struct implementation of SourceHandler for HTTP requests
 type HTTPSourceHandler struct {
 	Repository SourceRepository
+	Dynamo     SourceRepository
 }
 
 //SourceRepository is an interface used by the sources.go handler to interact with storage
@@ -98,7 +99,7 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 
 	sourceName := c.Params.ByName("name")
 	source := Source{Name: sourceName, Routes: sourceDTO.Routes}
-	err = handler.Repository.CreateRoute(source)
+	err = handler.Dynamo.CreateRoute(source)
 
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
