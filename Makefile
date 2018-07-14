@@ -23,7 +23,7 @@ clean:
 	rm -f $(BINARY_NAME).zip
 	rm -f $(SAM_OUTPUT)
 deploy:
-	aws cloudformation deploy --template-file $(SAM_OUTPUT) --stack-name $(STACK_NAME) --capabilities CAPABILITY_IAM --parameter-overrides Environment=$(ENV)
+	aws cloudformation deploy --template-file $(SAM_OUTPUT) --stack-name $(STACK_NAME) --capabilities CAPABILITY_IAM --parameter-overrides Environment=$(ENV) TableBaseName=$(TABLE_NAME)
 
 dependencies: 
 	@go get github.com/aws/aws-lambda-go/lambda

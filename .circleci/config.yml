@@ -6,6 +6,7 @@ jobs:
       - image: larse514/circleci-golang:latest
     environment:
       TEST_RESULTS: /tmp/test-results
+      TABLE_NAME: DispatchSources
     steps:
     - checkout
     - run: mkdir -p $TEST_RESULTS
@@ -18,7 +19,7 @@ jobs:
           aws configure set default.region us-east-1
           aws configure set default.output json
     - run: chmod +x deploy.sh
-    - run: ./deploy.sh ${STACK_NAME} ${DEPLOYMENT_BUCKET} 
+    - run: ./deploy.sh ${STACK_NAME} ${DEPLOYMENT_BUCKET} ${TABLE_NAME}
     - run: 
         name: Integration tests
         command: |
