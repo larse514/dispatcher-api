@@ -22,10 +22,8 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	r := gin.Default()
 	repo := repository.SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	sourceHandler := handlers.HTTPSourceHandler{Repository: repo}
-	routeHandler := handlers.HTTPRouteHandler{}
-
 	r.GET("/sources", sourceHandler.GetAllSources)
-	r.GET("/sources/:name/routes", routeHandler.GetAllRoutes)
+	r.GET("/sources/:name/routes", sourceHandler.GetRoutes)
 	r.POST("/sources/:name/routes", sourceHandler.CreateRoute)
 
 	r.GET("/ping", handlers.Ping)

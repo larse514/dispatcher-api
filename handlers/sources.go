@@ -21,6 +21,11 @@ type Source struct {
 	Routes []Route `json:"routes"`
 }
 
+//Route is the struct representation of a source object.  It contains a Url
+type Route struct {
+	URL string `json:"url"`
+}
+
 //SourceDTO is a struct representing a POST sources request
 type SourceDTO struct {
 	Routes             []Route `json:"routes"`
