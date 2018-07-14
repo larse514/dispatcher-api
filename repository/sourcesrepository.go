@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbiface"
+	"github.com/aws/aws-sdk-go/service/dynamodb/expression"
 	"github.com/larse514/dispatcher-api/handlers"
 	uuid "github.com/satori/go.uuid"
 )
@@ -32,6 +33,43 @@ type SourceDynamoDBRepository struct {
 
 // GetSource method to get a slice of routes for a Source
 func (repo SourceDynamoDBRepository) GetSource(source handlers.Source) (handlers.Source, error) {
+	filt := expression.Name("name").Equal(expression.Value(source.Name))
+	proj := expression.NamesList(expression.Name("id"), expression.Name("name"), expression.Name("route"))
+	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
+
+	if err != nil {
+		fmt.Println("Got error building expression:")
+		fmt.Println(err.Error())
+		return handlers.Source{}, err
+	}
+
+	params := &dynamodb.ScanInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(repo.TableName),
+	}
+
+	// Make the DynamoDB Query API call
+	result, err := repo.Svc.Scan(params)
+
+	if err != nil {
+		fmt.Println("Query API call failed:")
+		fmt.Println((err.Error()))
+		return handlers.Source{}, err
+	}
+
+	for _, i := range result.Items {
+		route := handlers.Route{}
+		err = dynamodbattribute.UnmarshalMap(i, &route)
+		if err != nil {
+			fmt.Println("Got error unmarshalling:")
+			fmt.Println(err.Error())
+			return handlers.Source{}, err
+		}
+		source.Routes = append(source.Routes, route)
+	}
 	return handlers.Source{}, nil
 }
 

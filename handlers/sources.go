@@ -51,7 +51,7 @@ func (handler HTTPSourceHandler) GetRoutes(c *gin.Context) {
 
 	log.Printf("DEBUG: received name: %s", sourceName)
 
-	source, err := handler.Repository.GetSource(Source{Name: sourceName})
+	source, err := handler.Dynamo.GetSource(Source{Name: sourceName})
 
 	if err != nil {
 		log.Println("ERROR: received error from Repository: ", err)

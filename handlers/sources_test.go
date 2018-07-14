@@ -173,7 +173,7 @@ func TestGetAll2SourcesAreReturned(t *testing.T) {
 
 func TestGetRoutesOkHttpStatusOK(t *testing.T) {
 	r := getRouter()
-	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	handler := HTTPSourceHandler{Dynamo: mockGoodRepository{}}
 	r.GET("/sources/somename/routes", handler.GetRoutes)
 
 	req, _ := http.NewRequest("GET", "/sources/somename/routes", nil)
@@ -197,7 +197,7 @@ func TestGetRoutesOkHttpStatusOK(t *testing.T) {
 
 func TestGetRoutesOkReturnsSameRoutes(t *testing.T) {
 	r := getRouter()
-	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	handler := HTTPSourceHandler{Dynamo: mockGoodRepository{}}
 	r.GET("/sources/somename/routes", handler.GetRoutes)
 
 	req, _ := http.NewRequest("GET", "/sources/somename/routes", nil)

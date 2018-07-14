@@ -19,11 +19,25 @@ type mockBadDynamoDbClient struct {
 	dynamodbiface.DynamoDBAPI
 }
 
+func (client mockGoodDynamoDbClient) Scan(*dynamodb.ScanInput) (*dynamodb.ScanOutput, error) {
+	return &dynamodb.ScanOutput{}, nil
+}
 func (client mockGoodDynamoDbClient) PutItem(*dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error) {
 	return &dynamodb.PutItemOutput{}, nil
 }
 func (client mockBadDynamoDbClient) PutItem(*dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error) {
 	return &dynamodb.PutItemOutput{}, errors.New("An error occured")
+}
+
+func TestSourceDynamoDBRepositoryScanNoError(t *testing.T) {
+	repo := SourceDynamoDBRepository{Svc: mockGoodDynamoDbClient{}}
+
+	_, err := repo.GetSource(handlers.Source{Name: "Service1", Routes: nil})
+
+	if err != nil {
+		t.Log("Error returned when none was expected ", err)
+		t.Fail()
+	}
 }
 func TestSourceDynamoDBRepositoryAddOneSourceNoError(t *testing.T) {
 	repo := SourceDynamoDBRepository{Svc: mockGoodDynamoDbClient{}}
