@@ -19,6 +19,7 @@ import (
 
 const (
 	tableNameKey = "TableName"
+	regionKey    = "Region"
 )
 
 var ginLambda *ginadapter.GinLambda
@@ -32,7 +33,7 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	// Initialize a session in us-west-2 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2")},
+		Region: aws.String(os.Getenv(regionKey))},
 	)
 
 	if err != nil {

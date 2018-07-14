@@ -5,6 +5,10 @@ Parameters:
   Environment:
     Type: String
     Description: Name environment to deploy stack to 
+  TableBaseName:
+    Type: String
+    Description: Name of the base table name for dynamodb
+    
 
 Resources:
   #API Gateway definition
@@ -129,9 +133,13 @@ Resources:
       MemorySize: 128
       Policies: AWSLambdaBasicExecutionRole
       Timeout: 3
+      #Todo-refacto this
+      Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
-          ENVIRONMENT: !Ref Environment
+          TableName: !Sub ${TableBaseName}_${Stage}
+          Environment: !Ref Environment
+          Region: !Sub ${AWS::Region}
       Events:
         ProxyApiRoot:
           Type: Api
@@ -152,6 +160,84 @@ Resources:
       FunctionName:
         Ref: DispatcherAPI
       Description: Most recent published version
+
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: arn:aws:logs:*:*:*
+          - Effect: Allow
+            Action:
+            - "dynamodb:DeleteItem"
+            - "dynamodb:GetItem"
+            - "dynamodb:PutItem"
+            - "dynamodb:Scan"
+            - "dynamodb:UpdateItem"
+            Resource: !Sub arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${DispatcherSourceTable}/*
+
+  DispatcherSourceTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        -
+          AttributeName: "id"
+          AttributeType: "S"
+        -
+          AttributeName: "name"
+          AttributeType: "S"
+        -
+          AttributeName: "route"
+          AttributeType: "S"
+      KeySchema:
+        -
+          AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+      TableName: !Sub ${TableBaseName}_${Environment}
 
 Outputs:
   SampleGinApi:
