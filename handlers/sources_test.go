@@ -18,7 +18,7 @@ func (mockGoodRepository mockGoodRepository) CreateRoute(source Source) error {
 	return nil
 }
 func (mockGoodRepository mockGoodRepository) GetSource(source Source) (Source, error) {
-	return Source{}, nil
+	return Source{Routes: append(make([]Route, 0), Route{URL: "https://www.google.com"})}, nil
 }
 func (mockGoodRepository mockGoodRepository) GetAllSources() ([]Source, error) {
 	return append(make([]Source, 1), Source{Name: "MOCKNAME"}), nil
@@ -157,6 +157,54 @@ func TestGetAll2SourcesAreReturned(t *testing.T) {
 	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
 		body, err := ioutil.ReadAll(w.Body)
 		expected := `{"sources":[{"name":"","routes":null},{"name":"MOCKNAME","routes":null}]}`
+		actual := string(body)
+		sourcesOk := err == nil && actual == expected
+
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		if actual != expected {
+			t.Log("expected ", expected, " got ", actual)
+		}
+		return sourcesOk
+	})
+}
+
+func TestGetRoutesOkHttpStatusOK(t *testing.T) {
+	r := getRouter()
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	r.GET("/sources/somename/routes", handler.GetRoutes)
+
+	req, _ := http.NewRequest("GET", "/sources/somename/routes", nil)
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		_, err := ioutil.ReadAll(w.Body)
+		expected := http.StatusOK
+		actual := w.Code
+		sourcesOk := err == nil && actual == expected
+
+		if err != nil {
+			t.Log("Error parsing body")
+			t.Fail()
+		}
+		if actual != expected {
+			t.Log("expected ", expected, " got ", actual)
+		}
+		return sourcesOk
+	})
+}
+
+func TestGetRoutesOkReturnsSameRoutes(t *testing.T) {
+	r := getRouter()
+	handler := HTTPSourceHandler{Repository: mockGoodRepository{}}
+	r.GET("/sources/somename/routes", handler.GetRoutes)
+
+	req, _ := http.NewRequest("GET", "/sources/somename/routes", nil)
+
+	testHTTPResponse(t, r, req, func(w *httptest.ResponseRecorder) bool {
+		body, err := ioutil.ReadAll(w.Body)
+		expected := `{"routes":[{"url":"https://www.google.com"}]}`
 		actual := string(body)
 		sourcesOk := err == nil && actual == expected
 

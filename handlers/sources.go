@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -42,15 +43,21 @@ type SourceRepository interface {
 func (handler HTTPSourceHandler) GetRoutes(c *gin.Context) {
 	sourceName := c.Params.ByName("name")
 
+	log.Printf("DEBUG: received name: %s", sourceName)
+
 	source, err := handler.Repository.GetSource(Source{Name: sourceName})
 
 	if err != nil {
+		log.Println("ERROR: received error from Repository: ", err)
+
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"message": "Error retrieving source",
 		})
 		return
 	}
+	log.Println("DEBUG: returning routes from source: ", source)
 	c.JSON(http.StatusOK, gin.H{
+
 		"routes": source.Routes,
 	})
 }
