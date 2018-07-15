@@ -11,23 +11,45 @@ Resources:
   MySQSQueueFunction:
     Properties:
       Code:
-        S3Bucket: !Ref: LambdaSource
-        S3Key: 15a842900881edb9e97d945c4394d875
-      Events:
-        MySQSEvent:
-          Properties:
-            BatchSize: 10
-            Queue:
-              Fn::GetAtt:
-              - MySqsQueue
-              - Arn
-          Type: SQS
+        S3Bucket: lambda.bucket.moodle
+        S3Key: 399cc547698a0aa07b0e2923550cbe37
       Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - MySQSQueueFunctionRole
+          - Arn
       Runtime: nodejs8.10
-    Type: AWS::Serverless::Function
+      Tags:
+        - Key: lambda:createdBy
+          Value: SAM
+    Type: AWS::Lambda::Function
+  MySQSQueueFunctionMySQSEvent:
+    Properties:
+      BatchSize: 10
+      EventSourceArn:
+        Fn::GetAtt:
+          - MySqsQueue
+          - Arn
+      FunctionName:
+        Ref: MySQSQueueFunction
+    Type: AWS::Lambda::EventSourceMapping
+  MySQSQueueFunctionRole:
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+        Version: '2012-10-17'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+    Type: AWS::IAM::Role
   MySqsQueue:
     Properties:
       QueueName:
         Ref: QueueName
     Type: AWS::SQS::Queue
-Transform: AWS::Serverless-2016-10-31
