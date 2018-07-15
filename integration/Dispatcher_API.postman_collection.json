@@ -119,7 +119,7 @@
 			"data": [],
 			"dataMode": "raw",
 			"auth": null,
-			"time": 1531624231301,
+			"time": 1531624676907,
 			"name": "GET sources/{sourcename}/routes copy",
 			"description": "",
 			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
@@ -128,7 +128,7 @@
 			"tests": "\npm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\npm.test(\"Message is created\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"created\");\n});",
 			"currentHelper": null,
 			"helperAttributes": null,
-			"rawModeData": "{\n\t\"routes\": [{\n\t\t\"url\": \"https://www.google.com\"\n\t}],\n\t\"withSourceCreation\": false\n}"
+			"rawModeData": "{\n\t\"routes\": [{\n\t\t\"url\": \"https://www.google.com\"\n\t}],\n\t\"withSourceCreation\": true\n}"
 		},
 		{
 			"id": "dda4f031-1004-d0fe-9966-339953c9c625",
