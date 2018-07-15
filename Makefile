@@ -13,7 +13,7 @@ BINDATA_ASSETS=iaas.go
 all: clean dependencies build test package
 
 build: 
-	cd assets && ./go-bindata -prefix "ias/cloudformation/" -pkg assets -o $(BINDATA_ASSETS) ias/cloudformation/ 
+	# cd assets && ./go-bindata -prefix "ias/cloudformation/" -pkg assets -o $(BINDATA_ASSETS) ias/cloudformation/ 
 	GOOS=linux GOARCH=amd64 $(GOBUILD) -o $(CORE_BINARY_NAME) main.go
 package:
 	zip main.zip $(CORE_BINARY_NAME)
