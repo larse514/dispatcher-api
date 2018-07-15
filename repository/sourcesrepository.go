@@ -26,8 +26,10 @@ type SourceDynamoDBRepository struct {
 
 // GetRouteForSource method to retrieve a route for a given source
 func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeName string) (handlers.Route, error) {
+
 	filt := expression.Name("name").Equal(expression.Value(sourceName)).And(expression.Name("route").Equal(expression.Value(routeName)))
 	proj := expression.NamesList(expression.Name("id"), expression.Name("name"), expression.Name("route"))
+
 	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
 
 	if err != nil {

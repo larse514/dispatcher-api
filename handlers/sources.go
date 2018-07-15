@@ -113,48 +113,59 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 
 	_, err = handler.Dynamo.GetRouteForSource(sourceName, sourceDTO.Route.URL)
 
-	_, ok := err.(NotFoundError)
-
-	if ok {
-		c.JSON(http.StatusConflict, gin.H{
-			"message": "Route exists for Source",
-		})
-		return
-	}
-
-	err = handler.Dynamo.CreateRoute(source)
-
-	if err != nil {
+	//if ok is true, that means it's a NotFoundError and it's also not null
+	_, resourceNotFound := err.(NotFoundError)
+	log.Println("error ", err, " type check ", resourceNotFound)
+	if err != nil && !resourceNotFound {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"message": "Error storing route information",
+			"message": "Error communicating with database",
 		})
 		return
 	}
 
-	if sourceDTO.WithSourceCreation {
-		log.Println("DEBUG: Source Creation set to true, creating Sources")
-		err = handler.RouterCreator.CreateRoutersWithSource(&source)
+	//if we got a NotFound error that means we can create the route for the source
+	if resourceNotFound {
+		err = handler.Dynamo.CreateRoute(source)
+
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"message": "Error creating Routers and Source",
+				"message": "Error storing route information",
 			})
 			return
 		}
+
+		if sourceDTO.WithSourceCreation {
+			log.Println("DEBUG: Source Creation set to true, creating Sources")
+			err = handler.RouterCreator.CreateRoutersWithSource(&source)
+			if err != nil {
+				c.JSON(http.StatusServiceUnavailable, gin.H{
+					"message": "Error creating Routers and Source",
+				})
+				return
+			}
+		} else {
+			log.Println("DEBUG: Creating Routers")
+
+			err = handler.RouterCreator.CreateRouters(&source)
+		}
+
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"message": "Error creating Routers",
+			})
+			return
+		}
+
+		c.JSON(http.StatusCreated, gin.H{
+			"message": "created",
+		})
+
 	} else {
-		log.Println("DEBUG: Creating Routers")
-
-		err = handler.RouterCreator.CreateRouters(&source)
-	}
-
-	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"message": "Error creating Routers",
+		// this means that a route was found, return
+		c.JSON(http.StatusConflict, gin.H{
+			"message": "Route exists for Sourece",
 		})
 		return
 	}
-
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "created",
-	})
 
 }
