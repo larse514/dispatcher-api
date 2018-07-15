@@ -105,10 +105,10 @@
 				{
 					"listen": "prerequest",
 					"script": {
-						"id": "c037db5f-602e-4567-8c96-4b46ab16f88c",
+						"id": "3fa6bc69-c0fa-4279-b17b-647357932226",
 						"type": "text/javascript",
 						"exec": [
-							"pm.environment.set(\"SOURCE1\", \"SomeSourceName\");"
+							"pm.environment.set(\"SOURCE1\", \"Some\"+Math.random().toString(36).substring(7));"
 						]
 					}
 				}
@@ -119,12 +119,12 @@
 			"data": [],
 			"dataMode": "raw",
 			"auth": null,
-			"time": 1531586147270,
+			"time": 1531624231301,
 			"name": "GET sources/{sourcename}/routes copy",
 			"description": "",
 			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
 			"responses": [],
-			"preRequestScript": "pm.environment.set(\"SOURCE1\", \"SomeSourceName\");",
+			"preRequestScript": "pm.environment.set(\"SOURCE1\", \"Some\"+Math.random().toString(36).substring(7));",
 			"tests": "\npm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\npm.test(\"Message is created\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"created\");\n});",
 			"currentHelper": null,
 			"helperAttributes": null,

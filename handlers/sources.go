@@ -34,8 +34,9 @@ type SourceDTO struct {
 
 // HTTPSourceHandler struct implementation of SourceHandler for HTTP requests
 type HTTPSourceHandler struct {
-	Repository SourceRepository
-	Dynamo     SourceRepository
+	Repository    SourceRepository
+	Dynamo        SourceRepository
+	RouterCreator RouterCreator
 }
 
 //SourceRepository is an interface used by the sources.go handler to interact with storage
@@ -43,6 +44,12 @@ type SourceRepository interface {
 	CreateRoute(source Source) error
 	GetSource(source Source) (Source, error)
 	GetAllSources() ([]Source, error)
+}
+
+//RouterCreator is an interface to define the method to create a list of Routers
+type RouterCreator interface {
+	CreateRouters(source *Source) error
+	CreateRoutersWithSource(source *Source) error
 }
 
 //GetRoutes is a function to return a source based on the requested Source Name
@@ -87,7 +94,6 @@ func (handler HTTPSourceHandler) GetAllSources(c *gin.Context) {
 //CreateRoute is a method to create a Route for a given Source
 func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 	sourceDTO := SourceDTO{}
-
 	err := c.ShouldBind(&sourceDTO)
 
 	if err != nil {
@@ -104,6 +110,28 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"message": "Error storing route information",
+		})
+		return
+	}
+
+	if sourceDTO.WithSourceCreation {
+		log.Println("DEBUG: Source Creation set to true, creating Sources")
+		err = handler.RouterCreator.CreateRoutersWithSource(&source)
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{
+				"message": "Error creating Routers and Source",
+			})
+			return
+		}
+	} else {
+		log.Println("DEBUG: Creating Routers")
+
+		err = handler.RouterCreator.CreateRouters(&source)
+	}
+
+	if err != nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"message": "Error creating Routers",
 		})
 		return
 	}

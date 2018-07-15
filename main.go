@@ -10,10 +10,14 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/larse514/aws-cloudformation-go"
+	"github.com/larse514/dispatcher-api/assets"
 	"github.com/larse514/dispatcher-api/handlers"
+	"github.com/larse514/dispatcher-api/infrastructure"
 	"github.com/larse514/dispatcher-api/repository"
 )
 
@@ -43,11 +47,16 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	}
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
+	cloudformation := cloudformation.New(sess)
+
 	tableName := os.Getenv(tableNameKey)
 	dynamodb := repository.SourceDynamoDBRepository{Svc: svc, TableName: tableName}
 
 	repo := repository.SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
-	sourceHandler := handlers.HTTPSourceHandler{Repository: repo, Dynamo: dynamodb}
+	executor := cf.IaaSExecutor{Client: cloudformation}
+	lambda := assets.AWSTemplate{}
+	routercreator := infrastructure.LambdaRouterCreator{Executor: executor, Template: lambda}
+	sourceHandler := handlers.HTTPSourceHandler{Repository: repo, Dynamo: dynamodb, RouterCreator: routercreator}
 
 	r.GET("/sources", sourceHandler.GetAllSources)
 	r.GET("/sources/:name/routes", sourceHandler.GetRoutes)
