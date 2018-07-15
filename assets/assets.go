@@ -1,7 +1,7 @@
 package assets
 
 const (
-	sourceTemplate = "sam.yml"
+	sourceTemplate = "cfn-transformed-template.yml"
 	routerTemplate = "sam.yml"
 	lambdaSource   = "index.js"
 )
