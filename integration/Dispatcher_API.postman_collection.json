@@ -4,6 +4,7 @@
 	"description": "",
 	"order": [
 		"6dec38d4-58bb-eb42-450b-3e807aa8eae9",
+		"b5be414d-a294-a143-a9f1-ec3e6a9d1a12",
 		"367152dc-442f-2d24-cc4d-1cb8baf6eb9d",
 		"e5381247-58d6-e174-4d3e-c9ae332f4dc4",
 		"dda4f031-1004-d0fe-9966-339953c9c625"
@@ -119,7 +120,7 @@
 			"data": [],
 			"dataMode": "raw",
 			"auth": null,
-			"time": 1531624676907,
+			"time": 1531689182612,
 			"name": "GET sources/{sourcename}/routes copy",
 			"description": "",
 			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
@@ -128,7 +129,63 @@
 			"tests": "\npm.test(\"Status code is 201\", function () {\n    pm.response.to.have.status(201);\n});\n\npm.test(\"Message is created\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.message).to.eql(\"created\");\n});",
 			"currentHelper": null,
 			"helperAttributes": null,
-			"rawModeData": "{\n\t\"routes\": [{\n\t\t\"url\": \"https://www.google.com\"\n\t}],\n\t\"withSourceCreation\": true\n}"
+			"rawModeData": "{\n\t\"route\": {\n\t\t\"url\": \"https://www.google.com\"\n\t},\n\t\"withSourceCreation\": true\n}"
+		},
+		{
+			"id": "b5be414d-a294-a143-a9f1-ec3e6a9d1a12",
+			"headers": "Content-Type: application/json\n",
+			"headerData": [
+				{
+					"key": "Content-Type",
+					"value": "application/json",
+					"description": "",
+					"enabled": true
+				}
+			],
+			"url": "{{URL}}/sources/{{SOURCE1}}/routes",
+			"queryParams": [],
+			"events": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b3d8c0fe-f0a1-4edc-9672-bcc6cdbfec1d",
+						"type": "text/javascript",
+						"exec": [
+							"",
+							"pm.test(\"Status code is 409\", function () {",
+							"    pm.response.to.have.status(409);",
+							"});",
+							""
+						]
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9d72f491-eb61-4a51-8784-14a5bcd33920",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"pathVariables": {},
+			"pathVariableData": [],
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"auth": null,
+			"time": 1531689187901,
+			"name": "GET sources/{sourcename}/routes duplicate returns conflict",
+			"description": "",
+			"collectionId": "8eb0e275-7392-8ee7-5c3e-feeaf4d5a066",
+			"responses": [],
+			"preRequestScript": null,
+			"tests": "\npm.test(\"Status code is 409\", function () {\n    pm.response.to.have.status(409);\n});\n",
+			"currentHelper": null,
+			"helperAttributes": null,
+			"rawModeData": "{\n\t\"route\": {\n\t\t\"url\": \"https://www.google.com\"\n\t},\n\t\"withSourceCreation\": true\n}"
 		},
 		{
 			"id": "dda4f031-1004-d0fe-9966-339953c9c625",

@@ -61,3 +61,14 @@ $ aws cloudformation deploy \
 
 ```
 Note that these can be found in the Makefile under the package and deploy tasks
+
+
+
+```golang
+	functionType := "nodejs8.10"
+	
+	creator.Lambda.CreateFunction(&lambda.CreateFunctionInput{
+		Code:    &lambda.FunctionCode{},
+		Runtime: &functionType,
+    })
+```

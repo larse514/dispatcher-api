@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sync"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -52,11 +51,10 @@ func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse,
 	tableName := os.Getenv(tableNameKey)
 	dynamodb := repository.SourceDynamoDBRepository{Svc: svc, TableName: tableName}
 
-	repo := repository.SourceRepositoryInMemory{Sources: map[string][]handlers.Route{}, Lock: new(sync.Mutex)}
 	executor := cf.IaaSExecutor{Client: cloudformation}
 	lambda := assets.AWSTemplate{}
 	routercreator := infrastructure.LambdaRouterCreator{Executor: executor, Template: lambda}
-	sourceHandler := handlers.HTTPSourceHandler{Repository: repo, Dynamo: dynamodb, RouterCreator: routercreator}
+	sourceHandler := handlers.HTTPSourceHandler{Dynamo: dynamodb, RouterCreator: routercreator}
 
 	r.GET("/sources", sourceHandler.GetAllSources)
 	r.GET("/sources/:name/routes", sourceHandler.GetRoutes)

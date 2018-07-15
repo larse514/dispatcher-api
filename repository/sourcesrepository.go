@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -19,16 +18,59 @@ type dynamoSource struct {
 	Route string `json:"route"`
 }
 
-// SourceRepositoryInMemory struct containing in memory list
-type SourceRepositoryInMemory struct {
-	Sources map[string][]handlers.Route
-	Lock    *sync.Mutex
-}
-
 // SourceDynamoDBRepository struct containing in dynamodb connection
 type SourceDynamoDBRepository struct {
 	Svc       dynamodbiface.DynamoDBAPI
 	TableName string
+}
+
+// GetRouteForSource method to retrieve a route for a given source
+func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeName string) (handlers.Route, error) {
+	filt := expression.Name("name").Equal(expression.Value(sourceName)).And(expression.Name("route").Equal(expression.Value(routeName)))
+	proj := expression.NamesList(expression.Name("id"), expression.Name("name"), expression.Name("route"))
+	expr, err := expression.NewBuilder().WithFilter(filt).WithProjection(proj).Build()
+
+	if err != nil {
+		fmt.Println("Got error building expression:")
+		fmt.Println(err.Error())
+		return handlers.Route{}, err
+	}
+	params := &dynamodb.ScanInput{
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+		ProjectionExpression:      expr.Projection(),
+		TableName:                 aws.String(repo.TableName),
+	}
+
+	// Make the DynamoDB Query API call
+	result, err := repo.Svc.Scan(params)
+
+	if err != nil {
+		fmt.Println("Query API call failed:")
+		fmt.Println((err.Error()))
+		return handlers.Route{}, err
+	}
+
+	if *result.Count < int64(1) {
+		return handlers.Route{}, handlers.NotFoundError{Resource: "route"}
+	}
+
+	fmt.Println("Query returned ", result)
+
+	response := handlers.Route{}
+	for _, i := range result.Items {
+		route := dynamoSource{}
+		err = dynamodbattribute.UnmarshalMap(i, &route)
+		if err != nil {
+			fmt.Println("Got error unmarshalling:")
+			fmt.Println(err.Error())
+			return handlers.Route{}, err
+		}
+		response.URL = route.Route
+	}
+
+	return response, nil
 }
 
 // GetSource method to get a slice of routes for a Source
@@ -110,34 +152,4 @@ func (repo SourceDynamoDBRepository) CreateRoute(source handlers.Source) error {
 	}
 
 	return nil
-}
-
-// CreateRoute method to create a route
-func (repo SourceRepositoryInMemory) CreateRoute(source handlers.Source) error {
-	repo.Lock.Lock()
-	defer repo.Lock.Unlock()
-
-	repo.Sources[source.Name] = append(repo.Sources[source.Name], source.Routes...)
-	return nil
-}
-
-// GetSource method to get a slice of routes for a Source
-func (repo SourceRepositoryInMemory) GetSource(source handlers.Source) (handlers.Source, error) {
-	repo.Lock.Lock()
-	defer repo.Lock.Unlock()
-	source.Routes = repo.Sources[source.Name]
-	return source, nil
-}
-
-// GetAllSources method to get all sources
-func (repo SourceRepositoryInMemory) GetAllSources() ([]handlers.Source, error) {
-	repo.Lock.Lock()
-	defer repo.Lock.Unlock()
-	sources := make([]handlers.Source, 0)
-	for key, value := range repo.Sources {
-		fmt.Println("Key:", key, "Value:", value)
-		sources = append(sources, handlers.Source{Name: key, Routes: value})
-	}
-
-	return sources, nil
 }

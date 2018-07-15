@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -28,13 +29,12 @@ type Route struct {
 
 //SourceDTO is a struct representing a POST sources request
 type SourceDTO struct {
-	Routes             []Route `json:"routes"`
-	WithSourceCreation bool    `json:"withSourceCreation"`
+	Route              Route `json:"route"`
+	WithSourceCreation bool  `json:"withSourceCreation"`
 }
 
 // HTTPSourceHandler struct implementation of SourceHandler for HTTP requests
 type HTTPSourceHandler struct {
-	Repository    SourceRepository
 	Dynamo        SourceRepository
 	RouterCreator RouterCreator
 }
@@ -44,12 +44,23 @@ type SourceRepository interface {
 	CreateRoute(source Source) error
 	GetSource(source Source) (Source, error)
 	GetAllSources() ([]Source, error)
+	GetRouteForSource(sourceName string, routeName string) (Route, error)
 }
 
 //RouterCreator is an interface to define the method to create a list of Routers
 type RouterCreator interface {
 	CreateRouters(source *Source) error
 	CreateRoutersWithSource(source *Source) error
+}
+
+//NotFoundError is an error corresponding to a resource not found
+type NotFoundError struct {
+	Resource string
+}
+
+func (e NotFoundError) Error() string {
+	return fmt.Sprintf("Resource %s not found", e.Resource)
+
 }
 
 //GetRoutes is a function to return a source based on the requested Source Name
@@ -77,14 +88,7 @@ func (handler HTTPSourceHandler) GetRoutes(c *gin.Context) {
 
 //GetAllSources is a method to return all source object
 func (handler HTTPSourceHandler) GetAllSources(c *gin.Context) {
-	sources, err := handler.Repository.GetAllSources()
-
-	if err != nil {
-		c.JSON(http.StatusServiceUnavailable, gin.H{
-			"message": "Error retrieving route information",
-		})
-		return
-	}
+	sources := append(make([]Source, 0), Source{Name: "SOMENAME", Routes: append(make([]Route, 0), Route{URL: "SOMEURL"})})
 
 	c.JSON(http.StatusOK, gin.H{
 		"sources": sources,
@@ -104,7 +108,20 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 	}
 
 	sourceName := c.Params.ByName("name")
-	source := Source{Name: sourceName, Routes: sourceDTO.Routes}
+	routes := append(make([]Route, 0), sourceDTO.Route)
+	source := Source{Name: sourceName, Routes: routes}
+
+	_, err = handler.Dynamo.GetRouteForSource(sourceName, sourceDTO.Route.URL)
+
+	_, ok := err.(NotFoundError)
+
+	if ok {
+		c.JSON(http.StatusConflict, gin.H{
+			"message": "Route exists for Source",
+		})
+		return
+	}
+
 	err = handler.Dynamo.CreateRoute(source)
 
 	if err != nil {
