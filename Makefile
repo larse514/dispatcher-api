@@ -10,7 +10,7 @@ SAM_OUTPUT=sam_output.yml
 SAM_FILE=sam.yml
 BINDATA_ASSETS=iaas.go
 
-all: clean dependencies test build package
+all: clean dependencies build test package
 
 build: 
 	cd assets && ./go-bindata -prefix "ias/cloudformation/" -pkg assets -o $(BINDATA_ASSETS) ias/cloudformation/ 
