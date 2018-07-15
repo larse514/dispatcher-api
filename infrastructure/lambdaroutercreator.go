@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"log"
-
 	"github.com/larse514/aws-cloudformation-go"
 	"github.com/larse514/dispatcher-api/handlers"
 )
@@ -11,7 +9,7 @@ const (
 	queueNameKey    = "QueueName"
 	tagKey          = "dispatcher"
 	tagValue        = "dispatcher-lambda"
-	lambdaS3Code    = "s3://lambda.bucket.moodle/15a842900881edb9e97d945c4394d875"
+	lambdaS3Code    = "s3://lambda.bucket.moodle"
 	lambdaSourceKey = "LambdaSource"
 )
 
@@ -52,9 +50,6 @@ func (lambda LambdaRouterCreator) CreateRouters(source *handlers.Source) error {
 //CreateRoutersWithSource creates Lambda Routers and SQS Queue based on provided clise of Routes
 func (lambda LambdaRouterCreator) CreateRoutersWithSource(source *handlers.Source) error {
 	template, err := lambda.Template.GetSourceTemplate()
-	log.Println("returned template ", *template)
-	log.Println("returned template ", &template)
-	log.Println("returned template ", template)
 
 	if err != nil {
 		return err
