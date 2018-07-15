@@ -1,6 +1,8 @@
 package infrastructure
 
 import (
+	"log"
+
 	"github.com/larse514/aws-cloudformation-go"
 	"github.com/larse514/dispatcher-api/handlers"
 )
@@ -50,7 +52,7 @@ func (lambda LambdaRouterCreator) CreateRouters(source *handlers.Source) error {
 //CreateRoutersWithSource creates Lambda Routers and SQS Queue based on provided clise of Routes
 func (lambda LambdaRouterCreator) CreateRoutersWithSource(source *handlers.Source) error {
 	template, err := lambda.Template.GetSourceTemplate()
-
+	log.Println("template ", *template)
 	if err != nil {
 		return err
 	}
