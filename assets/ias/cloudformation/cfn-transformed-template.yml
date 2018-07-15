@@ -10,11 +10,8 @@ Parameters:
 Resources:
   MySQSQueueFunction:
     Properties:
-      Code:
-        S3Bucket: !Ref: LambdaSource
-        S3Key: 15a842900881edb9e97d945c4394d875
-        # ZipFile: String
-        
+      CodeUri:
+        Ref: LambdaSource
       Events:
         MySQSEvent:
           Properties:
