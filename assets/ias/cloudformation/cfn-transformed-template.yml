@@ -25,9 +25,10 @@ Resources:
           - Arn
       Runtime: go1.x
       Timeout: 3
-      Variables:
-        Region: !Sub ${AWS::Region}
-        RouteURL: !Ref RouteURL
+      Environment:
+        Variables:
+          Region: !Sub ${AWS::Region}
+          RouteURL: !Ref RouteURL
       Tags: 
         - 
           Key: "lambda:createdBy"
