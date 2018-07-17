@@ -8,19 +8,25 @@ Parameters:
   QueueName: 
     Description: "Name for SQS queue"
     Type: String
+  RouteURL:
+    Description: URL of consumer to route message to 
 Resources: 
   MySQSQueueFunction: 
     Properties: 
       Code: 
         S3Bucket: lambda.bucket.moodle
         S3Key: 399cc547698a0aa07b0e2923550cbe37
-      Handler: index.handler
+      Handler: main
       Role: 
         ? "Fn::GetAtt"
         : 
           - MySQSQueueFunctionRole
           - Arn
-      Runtime: nodejs8.10
+      Runtime: go1.x
+      Timeout: 3
+      Variables:
+        Region: !Sub ${AWS::Region}
+        RouteURL: !Ref RouteURL
       Tags: 
         - 
           Key: "lambda:createdBy"

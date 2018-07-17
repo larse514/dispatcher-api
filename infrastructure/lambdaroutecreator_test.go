@@ -68,7 +68,7 @@ func (packager mockGoodTemplatePackager) UploadSourceCode() error {
 func TestLambdaRouterCreatorCreateRoutersWithSource(t *testing.T) {
 	lambda := LambdaRouterCreator{Template: mockGoodIaasAsset{}, Executor: mockGoodExecutor{}}
 
-	err := lambda.CreateRoutersWithSource(&handlers.Source{})
+	err := lambda.CreateRoutersWithSource(&handlers.Source{Routes: append(make([]handlers.Route, 0), handlers.Route{URL: "URL"})})
 
 	if err != nil {
 		t.Log("Error encounterd ", err.Error())

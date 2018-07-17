@@ -13,6 +13,7 @@ const (
 	tagValue        = "dispatcher-lambda"
 	lambdaS3Code    = "s3://lambda.bucket.moodle"
 	lambdaSourceKey = "LambdaSource"
+	routeURLKey     = "RouteURL"
 )
 
 // //RouterCreator is an interface to define the method to create a list of Routers
@@ -57,14 +58,15 @@ func (lambda LambdaRouterCreator) CreateRoutersWithSource(source *handlers.Sourc
 		return err
 	}
 
-	return lambda.Executor.CreateStack(*template, source.Name, createTemplateParameters(source.Name), createTags())
+	return lambda.Executor.CreateStack(*template, source.Name, createTemplateParameters(source.Name, source.Routes[0].URL), createTags())
 }
 
 //helper function to create a map of Cloudformation Parameters
-func createTemplateParameters(name string) *map[string]string {
+func createTemplateParameters(name string, url string) *map[string]string {
 	m := map[string]string{
 		queueNameKey:    name,
 		lambdaSourceKey: lambdaS3Code,
+		routeURLKey:     url,
 	}
 	return &m
 }
