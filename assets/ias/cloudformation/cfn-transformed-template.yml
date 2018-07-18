@@ -16,7 +16,7 @@ Resources:
     Properties: 
       Code: 
         S3Bucket: lambda.bucket.moodle
-        S3Key: b974f6a7c47c3f8dfd35db250a1bc199
+        S3Key: 0099c60070693ac2f7321ad1b2894d3f
       Handler: main
       Role: 
         ? "Fn::GetAtt"
