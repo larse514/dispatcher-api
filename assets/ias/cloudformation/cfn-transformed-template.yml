@@ -1,6 +1,6 @@
 --- 
 AWSTemplateFormatVersion: "2010-09-09"
-Description: "Example of processing messages on an SQS queue with Lambda"
+Description: Dispatcher Lambda and SQS template
 Parameters: 
   LambdaSource: 
     Description: "Location of Lambda code in s3"
@@ -16,7 +16,7 @@ Resources:
     Properties: 
       Code: 
         S3Bucket: lambda.bucket.moodle
-        S3Key: 399cc547698a0aa07b0e2923550cbe37
+        S3Key: b974f6a7c47c3f8dfd35db250a1bc199
       Handler: main
       Role: 
         ? "Fn::GetAtt"

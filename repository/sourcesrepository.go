@@ -56,7 +56,7 @@ func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeN
 	}
 
 	if *result.Count < int64(1) {
-		log.Println("DEBUG: result count ", result.Count, " less than 1")
+		log.Println("DEBUG: result count ", *result.Count, " less than 1")
 		return handlers.Route{}, handlers.NotFoundError{Resource: "route"}
 	}
 
