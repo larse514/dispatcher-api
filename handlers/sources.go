@@ -161,6 +161,7 @@ func (handler HTTPSourceHandler) CreateRoute(c *gin.Context) {
 		})
 
 	} else {
+		log.Println("INFO: route ", routes, " exists for ", source)
 		// this means that a route was found, return
 		c.JSON(http.StatusConflict, gin.H{
 			"message": "Route exists for Sourece",

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
@@ -26,7 +27,7 @@ type SourceDynamoDBRepository struct {
 
 // GetRouteForSource method to retrieve a route for a given source
 func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeName string) (handlers.Route, error) {
-
+	log.Println("DEBUG: about to query for items with source ", sourceName, " and route ", routeName)
 	filt := expression.Name("name").Equal(expression.Value(sourceName)).And(expression.Name("route").Equal(expression.Value(routeName)))
 	proj := expression.NamesList(expression.Name("id"), expression.Name("name"), expression.Name("route"))
 
@@ -44,7 +45,7 @@ func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeN
 		ProjectionExpression:      expr.Projection(),
 		TableName:                 aws.String(repo.TableName),
 	}
-
+	log.Println("DEBUG: about to perform query with ", params, " based on expression ", expr)
 	// Make the DynamoDB Query API call
 	result, err := repo.Svc.Scan(params)
 
@@ -55,6 +56,7 @@ func (repo SourceDynamoDBRepository) GetRouteForSource(sourceName string, routeN
 	}
 
 	if *result.Count < int64(1) {
+		log.Println("DEBUG: result count ", result.Count, " less than 1")
 		return handlers.Route{}, handlers.NotFoundError{Resource: "route"}
 	}
 
